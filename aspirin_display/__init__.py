@@ -61,8 +61,9 @@ class Window:
     def draw_status_bar(self):
         pygame.draw.line(self.windowSurface, self.status.getColorPreset().fgColor.toRGBA(), (0, self.status_bar_height), (self.width, self.status_bar_height))
         status_text = "Score "
-        for k, v in self.status.scores.items():
-            status_text += "{}: {}".format(k, v)
+        for o in self.status.objects:
+            if isinstance(o, aspirin_logic.Player):
+                status_text += "{}: {}".format(o.name, o.score)
         statusBarSurf = self.font.render(status_text, True, self.status.getColorPreset().fgColor.toRGBA())
         statusBarRect = statusBarSurf.get_rect()
         self.windowSurface.blit(statusBarSurf, statusBarRect)
@@ -83,6 +84,11 @@ class Window:
                     sys.exit()
 
         self.draw_status_bar()
+        for o in self.status.objects:
+            if isinstance(o, aspirin_logic.GameObject):
+                o.tick()
+                o.draw(self.windowSurface, self.status.getColorPreset())
+
         self.windowSurface.blit(self.instructionSurf, self.instructionRect)
 
         pygame.display.update()

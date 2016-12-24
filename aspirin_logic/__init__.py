@@ -1,6 +1,21 @@
 import os
 import pygame
+import pygame.gfxdraw
 import aspirin_display
+
+
+class GameObject:
+    def __init__(self):
+        self.visibility = True
+
+    def draw(self, screen, colorpreset: 'aspirin_display.ColorPreset'):
+        raise NotImplementedError()
+
+    def tick(self):
+        raise NotImplementedError()
+
+    # @staticmethod
+    # def draw_stroke(window, color, ):
 
 
 class GameStatus:
@@ -14,7 +29,7 @@ class GameStatus:
         self.dataBindingCallbacks = []
         self.line_length = 20
         self.color_preset = color_preset
-        self.scores = {"Player1": 100}
+        self.objects = []
 
     def load_color_presets(self):
         for filename in os.listdir("color_presets"):
@@ -30,22 +45,43 @@ class GameStatus:
     def getColorPreset(self):
         return self.color_presets[self.color_preset]
 
+    def addObject(self, obj: GameObject):
+        self.objects.append(obj)
 
-class Player:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
+    def addInitialObjects(self):
+        self.addObject(Player("Player1", self.width // 2, self.height // 2))
+        self.addObject(Target(self.width // 2, self.height // 4))
+
+    def clearObject(self):
+        self.objects.clear()
+
+    def resetGame(self):
+        self.clearObject()
+        self.addInitialObjects()
+
+
+class Player(GameObject):
+    def __init__(self, name: str, x: int=0, y: int = 0):
+        super().__init__()
+        self.name = name
+        self.x = x
+        self.y = y
         self.size = 5
         self.speed = 2
+        self.score = 0
+        self.score_delta = 100
 
-    def draw(self, screen, color):
-        pygame.draw.circle(screen, color, (self.x, self.y), self.size)
+    def draw(self, screen, colorpreset: 'aspirin_display.ColorPreset'):
+        pygame.gfxdraw.aacircle(screen, self.x, self.y, self.size, colorpreset.fgColor.toRGBA())
 
     def tick(self):
         pass
 
+    def addScore(self, times: int=1):
+        self.score += self.score_delta * times
 
-class Obstacle:
+
+class Obstacle(GameObject):
     class Orientation:
         HORIZONTAL = 0
         VERTICAL = 1
@@ -55,6 +91,7 @@ class Obstacle:
         RIGHT_OR_DOWN = 1
 
     def __init__(self):
+        super().__init__()
         self.top = 0
         self.left = 0
         self.length = 20
@@ -71,8 +108,8 @@ class Obstacle:
         else:
             return self.top + self.length * self.direction, self.left
 
-    def draw(self, screen, color):
-        pygame.draw.line(screen, color, self.get_end1(), self.get_end2())
+    def draw(self, screen, colorpreset: 'aspirin_display.ColorPreset'):
+        pygame.gfxdraw.line(screen, colorpreset.fgColor, self.get_end1(), self.get_end2())
 
     def tick(self):
         if self.orientation == Obstacle.Orientation.HORIZONTAL:
@@ -81,14 +118,15 @@ class Obstacle:
             self.top += self.speed * self.direction
 
 
-class Target:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
+class Target(GameObject):
+    def __init__(self, x: int=0, y: int=0):
+        super().__init__()
+        self.x = x
+        self.y = y
         self.size = 10
 
-    def draw(self, screen, color):
-        pygame.draw.circle(screen, color, (self.x, self.y), self.size)
+    def draw(self, screen, colorpreset: 'aspirin_display.ColorPreset'):
+        pygame.gfxdraw.aacircle(screen, self.x, self.y, self.size, colorpreset.fgColor2.toRGBA())
 
     def tick(self):
         pass
