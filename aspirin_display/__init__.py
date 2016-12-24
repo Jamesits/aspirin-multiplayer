@@ -36,8 +36,13 @@ class Window:
         self.width = width
         self.height = height
         self.status = status
-        status.registerDataBindingCallback(self.redraw)
+        self.status.registerDataBindingCallback(self.redraw)
         self.fps = fps
+
+        # fixed drawing properties
+        self.line_length = 20
+        self.font_size = 20
+        self.status_bar_height = 22
 
         # init drawing things
         self.font = pygame.font.Font("/Users/james/Library/Fonts/DejaVuSans.ttf", 16)
@@ -52,6 +57,15 @@ class Window:
         # set window property
         self.mainClock = pygame.time.Clock()
         pygame.display.set_caption('Aspirin')
+
+    def draw_status_bar(self):
+        pygame.draw.line(self.windowSurface, self.status.getColorPreset().fgColor.toRGBA(), (0, self.status_bar_height), (self.width, self.status_bar_height))
+        status_text = "Score "
+        for k, v in self.status.scores.items():
+            status_text += "{}: {}".format(k, v)
+        statusBarSurf = self.font.render(status_text, True, self.status.getColorPreset().fgColor.toRGBA())
+        statusBarRect = statusBarSurf.get_rect()
+        self.windowSurface.blit(statusBarSurf, statusBarRect)
 
     def redraw(self):
         self.windowSurface.fill(self.status.getColorPreset().bgColor.toRGBA())
@@ -68,6 +82,7 @@ class Window:
                     pygame.quit()
                     sys.exit()
 
+        self.draw_status_bar()
         self.windowSurface.blit(self.instructionSurf, self.instructionRect)
 
         pygame.display.update()
