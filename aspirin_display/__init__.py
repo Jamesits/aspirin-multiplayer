@@ -13,6 +13,13 @@ class Color:
         self.green = green
         self.blue = blue
 
+    @classmethod
+    def fromHEX(cls, hexstr: str="#000000"):
+        if hexstr[0] != "#":
+            raise SyntaxError()
+        red, green, blue = tuple(int(hexstr.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))
+        return Color(red, green, blue)
+
     # this is for casting to tuple
     def __iter__(self):
         yield self.red
