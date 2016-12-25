@@ -1,4 +1,4 @@
-from aspirin_display import ColorPreset, Color
+from util import ColorPreset, Color
 
 color_presets = {
     "dark": ColorPreset(Color(0, 0, 0), Color(0, 0, 255), Color(255, 0, 0), Color(0, 0, 255)),

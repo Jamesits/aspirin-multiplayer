@@ -8,46 +8,15 @@ import aspirin_input
 import aspirin_logic
 
 
-class Color:
-    def __init__(self, red: int = 0, green: int = 0, blue: int = 0):
-        self.red = red
-        self.green = green
-        self.blue = blue
-
-    @classmethod
-    def fromHEX(cls, hexstr: str = "#000000"):
-        if hexstr[0] != "#":
-            raise SyntaxError()
-        red, green, blue = tuple(int(hexstr.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))
-        return Color(red, green, blue)
-
-    # this is for casting to tuple
-    def __iter__(self):
-        yield self.red
-        yield self.green
-        yield self.blue
-
-    def toRGBA(self):
-        return tuple(self)
-
-
-class ColorPreset:
-    def __init__(self, bgColor: Color = Color(0, 0, 0), fgColor: Color = Color(0, 0, 255),
-                 fgColor2: Color = Color(255, 0, 0), lineColor: Color = Color(0, 0, 255)):
-        self.bgColor = bgColor
-        self.fgColor = fgColor
-        self.fgColor2 = fgColor2
-        self.lineColor = lineColor
-
-
 class Window:
-    def __init__(self, width: int, height: int, status: aspirin_logic.GameStatus, fps: int = 30):
+    def __init__(self, width: int, height: int, status: aspirin_logic.GameStatus, fps: int = 30, tickQuotient: int = 2):
         # initialize window configs
         self.width = width
         self.height = height
         self.status = status
         self.status.registerDataBindingCallback(self.redraw)
         self.fps = fps
+        self.tickQuotient = tickQuotient
 
         # fixed drawing properties
         self.line_length = 20
@@ -71,6 +40,9 @@ class Window:
         self.mainClock = pygame.time.Clock()
         pygame.display.set_caption('Aspirin')
 
+        # runtime values
+        self.tickCount = 0
+
     def draw_status_bar(self):
         pygame.draw.line(self.windowSurface, self.status.getColorPreset().fgColor.toRGBA(), (0, self.status_bar_height),
                          (self.width, self.status_bar_height))
@@ -90,6 +62,11 @@ class Window:
         else:
             raise NotImplementedError()
 
+    def tick(self):
+        for o in self.status.objects:
+            if isinstance(o, aspirin_logic.GameObject):
+                o.tick()
+
     def redraw(self):
         self.windowSurface.fill(self.status.getColorPreset().bgColor.toRGBA())
 
@@ -105,11 +82,16 @@ class Window:
                 if event.key in self.eventHandlers:
                     self.eventHandlers[event.key][event.type](event)
 
+        # count tick
+        if self.tickCount == 0:
+            self.tick()
+        self.tickCount = (self.tickCount + 1) % self.tickQuotient
+
+        # draw everything
         self.draw_status_bar()
         for o in self.status.objects:
             if isinstance(o, aspirin_logic.GameObject):
-                o.tick()
-                o.draw(self.windowSurface, self.status.getColorPreset())
+                o.draw(self.windowSurface)
 
         self.windowSurface.blit(self.instructionSurf, self.instructionRect)
 

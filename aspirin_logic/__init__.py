@@ -3,24 +3,74 @@ import os
 import pygame
 import pygame.gfxdraw
 
-import aspirin_display
+import util
 
 
 class GameObject:
-    def __init__(self):
+    def __init__(self, colorpreset: 'util.ColorPreset' = util.ColorPreset()):
         self.visibility = True
+        self.colorpreset = colorpreset
 
-    def draw(self, screen, colorpreset: 'aspirin_display.ColorPreset'):
+    def getDrawingColor(self):
+        return self.colorpreset.fgColor.toRGBA()
+
+    def draw(self, screen):
         raise NotImplementedError()
 
     def tick(self):
-        raise NotImplementedError()
+        pass
+
+
+class CircularGameObject(GameObject):
+    def __init__(self, x: int = 0, y: int = 0, size: int = 0, colorpreset: 'util.ColorPreset' = util.ColorPreset()):
+        super().__init__(colorpreset)
+        self.x = x
+        self.y = y
+        self.size = size
+
+    def draw(self, screen):
+        pygame.gfxdraw.aacircle(screen, self.x, self.y, self.size, self.getDrawingColor())
+
+
+class LinearGameObject(GameObject):
+    class Orientation:
+        HORIZONTAL = 0
+        VERTICAL = 1
+
+    class Direction:
+        LEFT_OR_UP = -1
+        RIGHT_OR_DOWN = 1
+
+    def __init__(self, top: int = 0, left: int = 0, length: int = 0, dire: int = Direction.RIGHT_OR_DOWN, ori: int = Orientation.HORIZONTAL, colorpreset: 'util.ColorPreset' = util.ColorPreset()):
+        super().__init__(colorpreset)
+        self.top = top
+        self.left = left
+        self.length = length
+        self.direction = dire
+        self.orientation = ori
+
+    def get_end1(self):
+        return self.top, self.left
+
+    def get_end2(self):
+        if self.orientation == LinearGameObject.Orientation.HORIZONTAL:
+            return self.top, self.left + self.length * self.direction
+        else:
+            return self.top + self.length * self.direction, self.left
+
+    def getDrawingColor(self):
+        return self.colorpreset.fgColor.toRGBA()
+
+    def draw(self, screen):
+        x1, y1 = self.get_end1()
+        x2, y2 = self.get_end2()
+        pygame.gfxdraw.line(screen, x1, y1, x2, y2, self.getDrawingColor())
 
 
 class GameStatus:
     def __init__(self, width: int = 384, height: int = 216, color_preset="default"):
         self.color_presets = {
-            "default": aspirin_display.ColorPreset()
+            "default": util.ColorPreset()
         }
         self.load_color_presets()
         self.width = width
@@ -50,6 +100,7 @@ class GameStatus:
     def addInitialObjects(self):
         self.addObject(Player("Player1", self.width // 2, self.height // 2))
         self.addObject(Target(self.width // 2, self.height // 4))
+        self.addObject(Obstacle(self.width // 4, self.height // 4, 20))
 
     def clearObject(self):
         self.objects.clear()
@@ -62,21 +113,18 @@ class GameStatus:
         self.addInitialObjects()
 
 
-class Player(GameObject):
-    def __init__(self, name: str, x: int = 0, y: int = 0):
-        super().__init__()
+class Player(CircularGameObject):
+    def __init__(self, name: str, x: int = 0, y: int = 0, colorpreset: 'util.ColorPreset' = util.ColorPreset()):
+        super().__init__(x, y, 5, colorpreset)
         self.name = name
-        self.x = x
-        self.y = y
-        self.size = 5
         self.speed = 2
         self.score = 0
         self.score_delta = 100
         self.h_movement_level = 0
         self.v_movement_level = 0
 
-    def draw(self, screen, colorpreset: 'aspirin_display.ColorPreset'):
-        pygame.gfxdraw.aacircle(screen, self.x, self.y, self.size, colorpreset.fgColor.toRGBA())
+    def getDrawingColor(self):
+        return self.colorpreset.fgColor.toRGBA()
 
     def tick(self):
         self.x += self.h_movement_level * self.speed
@@ -86,52 +134,22 @@ class Player(GameObject):
         self.score += self.score_delta * times
 
 
-class Obstacle(GameObject):
-    class Orientation:
-        HORIZONTAL = 0
-        VERTICAL = 1
-
-    class Direction:
-        LEFT_OR_UP = -1
-        RIGHT_OR_DOWN = 1
-
-    def __init__(self):
-        super().__init__()
-        self.top = 0
-        self.left = 0
-        self.length = 20
+class Obstacle(LinearGameObject):
+    def __init__(self, top: int = 0, left: int = 0, length: int = 0, dire: int = LinearGameObject.Direction.RIGHT_OR_DOWN,
+                 ori: int = LinearGameObject.Orientation.HORIZONTAL, colorpreset: 'util.ColorPreset' = util.ColorPreset()):
+        super().__init__(top, left, length, dire, ori, colorpreset)
         self.speed = 20
-        self.orientation = Obstacle.Orientation.HORIZONTAL
-        self.direction = Obstacle.Direction.LEFT_OR_UP
-
-    def get_end1(self):
-        return self.top, self.left
-
-    def get_end2(self):
-        if self.orientation == Obstacle.Orientation.HORIZONTAL:
-            return self.top, self.left + self.length * self.direction
-        else:
-            return self.top + self.length * self.direction, self.left
-
-    def draw(self, screen, colorpreset: 'aspirin_display.ColorPreset'):
-        pygame.gfxdraw.line(screen, colorpreset.fgColor, self.get_end1(), self.get_end2())
 
     def tick(self):
-        if self.orientation == Obstacle.Orientation.HORIZONTAL:
+        if self.orientation == LinearGameObject.Orientation.HORIZONTAL:
             self.left += self.speed * self.direction
         else:
             self.top += self.speed * self.direction
 
 
-class Target(GameObject):
+class Target(CircularGameObject):
     def __init__(self, x: int = 0, y: int = 0):
-        super().__init__()
-        self.x = x
-        self.y = y
-        self.size = 10
+        super().__init__(x, y, 10)
 
-    def draw(self, screen, colorpreset: 'aspirin_display.ColorPreset'):
-        pygame.gfxdraw.aacircle(screen, self.x, self.y, self.size, colorpreset.fgColor2.toRGBA())
-
-    def tick(self):
-        pass
+    def getDrawingColor(self):
+        return self.colorpreset.fgColor2.toRGBA()
