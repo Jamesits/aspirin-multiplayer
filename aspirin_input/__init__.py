@@ -1,9 +1,12 @@
 from pygame.locals import *
+
 import aspirin_logic
+
 
 class InputGroup:
     def __init__(self, player: 'aspirin_logic.Player'):
         self.connectedPlayer = player
+
 
 class KeyboardInputGroup(InputGroup):
     def __init__(self, player: 'aspirin_logic.Player'):

@@ -1,20 +1,21 @@
-import aspirin_logic
-import aspirin_input
-import pygame
-from pygame.locals import *
-import pyganim
 import sys
-import os
+
+import pygame
+import pyganim
+from pygame.locals import *
+
+import aspirin_input
+import aspirin_logic
 
 
 class Color:
-    def __init__(self, red: int=0, green: int=0, blue: int=0):
+    def __init__(self, red: int = 0, green: int = 0, blue: int = 0):
         self.red = red
         self.green = green
         self.blue = blue
 
     @classmethod
-    def fromHEX(cls, hexstr: str="#000000"):
+    def fromHEX(cls, hexstr: str = "#000000"):
         if hexstr[0] != "#":
             raise SyntaxError()
         red, green, blue = tuple(int(hexstr.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))
@@ -31,7 +32,8 @@ class Color:
 
 
 class ColorPreset:
-    def __init__(self, bgColor: Color=Color(0, 0, 0), fgColor: Color=Color(0, 0, 255), fgColor2: Color=Color(255, 0, 0), lineColor: Color=Color(0, 0, 255)):
+    def __init__(self, bgColor: Color = Color(0, 0, 0), fgColor: Color = Color(0, 0, 255),
+                 fgColor2: Color = Color(255, 0, 0), lineColor: Color = Color(0, 0, 255)):
         self.bgColor = bgColor
         self.fgColor = fgColor
         self.fgColor2 = fgColor2
@@ -39,7 +41,7 @@ class ColorPreset:
 
 
 class Window:
-    def __init__(self, width: int, height: int, status: aspirin_logic.GameStatus, fps: int=30):
+    def __init__(self, width: int, height: int, status: aspirin_logic.GameStatus, fps: int = 30):
         # initialize window configs
         self.width = width
         self.height = height
@@ -58,7 +60,8 @@ class Window:
         self.animObjs = {}
         self.moveConductor = pyganim.PygConductor(self.animObjs)
         self.windowSurface = pygame.display.set_mode((self.width, self.height), 0, 32)
-        self.instructionSurf = self.font.render('Aspirin Multiplayer', True, self.status.getColorPreset().fgColor.toRGBA())
+        self.instructionSurf = self.font.render('Aspirin Multiplayer', True,
+                                                self.status.getColorPreset().fgColor.toRGBA())
         self.instructionRect = self.instructionSurf.get_rect()
         self.instructionRect.bottomleft = (10, self.height - 10)
 
@@ -69,7 +72,8 @@ class Window:
         pygame.display.set_caption('Aspirin')
 
     def draw_status_bar(self):
-        pygame.draw.line(self.windowSurface, self.status.getColorPreset().fgColor.toRGBA(), (0, self.status_bar_height), (self.width, self.status_bar_height))
+        pygame.draw.line(self.windowSurface, self.status.getColorPreset().fgColor.toRGBA(), (0, self.status_bar_height),
+                         (self.width, self.status_bar_height))
         status_text = "Score "
         for o in self.status.objects:
             if isinstance(o, aspirin_logic.Player):

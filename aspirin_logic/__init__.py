@@ -1,6 +1,8 @@
 import os
+
 import pygame
 import pygame.gfxdraw
+
 import aspirin_display
 
 
@@ -16,7 +18,7 @@ class GameObject:
 
 
 class GameStatus:
-    def __init__(self, width: int=384, height: int=216, color_preset="default"):
+    def __init__(self, width: int = 384, height: int = 216, color_preset="default"):
         self.color_presets = {
             "default": aspirin_display.ColorPreset()
         }
@@ -61,7 +63,7 @@ class GameStatus:
 
 
 class Player(GameObject):
-    def __init__(self, name: str, x: int=0, y: int = 0):
+    def __init__(self, name: str, x: int = 0, y: int = 0):
         super().__init__()
         self.name = name
         self.x = x
@@ -80,7 +82,7 @@ class Player(GameObject):
         self.x += self.h_movement_level * self.speed
         self.y += self.v_movement_level * self.speed
 
-    def addScore(self, times: int=1):
+    def addScore(self, times: int = 1):
         self.score += self.score_delta * times
 
 
@@ -122,7 +124,7 @@ class Obstacle(GameObject):
 
 
 class Target(GameObject):
-    def __init__(self, x: int=0, y: int=0):
+    def __init__(self, x: int = 0, y: int = 0):
         super().__init__()
         self.x = x
         self.y = y
