@@ -1,12 +1,13 @@
 from pygame.locals import *
-
+import aspirin_logic
 
 class InputGroup:
-    pass
-
+    def __init__(self, player: 'aspirin_logic.Player'):
+        self.connectedPlayer = player
 
 class KeyboardInputGroup(InputGroup):
-    def __init__(self):
+    def __init__(self, player: 'aspirin_logic.Player'):
+        super().__init__(player)
         self.keys = []
         self.eventHandlers = {}
 
@@ -15,32 +16,48 @@ class KeyboardInputGroup(InputGroup):
 
 
 class JoystickInputGroup(InputGroup):
-    def __init__(self):
+    def __init__(self, player: 'aspirin_logic.Player'):
+        super().__init__(player)
         raise NotImplementedError()
 
 
-class KeyboardInputGroupASDF(KeyboardInputGroup):
-    def __init__(self):
-        super().__init__()
-        self.keys = [K_a, K_b, K_c, K_d]
+class KeyboardInputGroupWASD(KeyboardInputGroup):
+    def __init__(self, player: 'aspirin_logic.Player'):
+        super().__init__(player)
+        self.keys = [K_a, K_s, K_d, K_w]
         self.eventHandlers = {
             KEYDOWN: self.onKeydown,
             KEYUP: self.onKeyUp,
         }
 
-    def registerKeys(self):
-        return self.keys, self.eventHandlers
-
     def onKeydown(self, event):
-        print("Key pressed")
+        if event.key == K_a:
+            self.connectedPlayer.h_movement_level -= 1
+        elif event.key == K_d:
+            self.connectedPlayer.h_movement_level += 1
+        elif event.key == K_s:
+            self.connectedPlayer.v_movement_level += 1
+        elif event.key == K_w:
+            self.connectedPlayer.v_movement_level -= 1
+        else:
+            raise NotImplementedError()
 
     def onKeyUp(self, event):
-        pass
+        if event.key == K_a:
+            self.connectedPlayer.h_movement_level += 1
+        elif event.key == K_d:
+            self.connectedPlayer.h_movement_level -= 1
+        elif event.key == K_s:
+            self.connectedPlayer.v_movement_level -= 1
+        elif event.key == K_w:
+            self.connectedPlayer.v_movement_level += 1
+        else:
+            raise NotImplementedError()
 
 
 class KeyboardInputGroupUDLR(KeyboardInputGroup):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, player: 'aspirin_logic.Player'):
+        super().__init__(player)
         self.keys = [K_UP, K_DOWN, K_LEFT, K_RIGHT]
         self.eventHandlers = {
             KEYDOWN: self.onKeydown,
@@ -48,7 +65,25 @@ class KeyboardInputGroupUDLR(KeyboardInputGroup):
         }
 
     def onKeydown(self, event):
-        pass
+        if event.key == K_a:
+            self.connectedPlayer.h_movement_level -= 1
+        elif event.key == K_d:
+            self.connectedPlayer.h_movement_level += 1
+        elif event.key == K_s:
+            self.connectedPlayer.v_movement_level += 1
+        elif event.key == K_w:
+            self.connectedPlayer.v_movement_level -= 1
+        else:
+            raise NotImplementedError()
 
     def onKeyUp(self, event):
-        pass
+        if event.key == K_a:
+            self.connectedPlayer.h_movement_level += 1
+        elif event.key == K_d:
+            self.connectedPlayer.h_movement_level -= 1
+        elif event.key == K_s:
+            self.connectedPlayer.v_movement_level -= 1
+        elif event.key == K_w:
+            self.connectedPlayer.v_movement_level += 1
+        else:
+            raise NotImplementedError()

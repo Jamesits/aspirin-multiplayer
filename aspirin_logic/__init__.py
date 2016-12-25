@@ -52,6 +52,9 @@ class GameStatus:
     def clearObject(self):
         self.objects.clear()
 
+    def getPlayers(self):
+        return [x for x in self.objects if isinstance(x, Player)]
+
     def resetGame(self):
         self.clearObject()
         self.addInitialObjects()
@@ -67,12 +70,15 @@ class Player(GameObject):
         self.speed = 2
         self.score = 0
         self.score_delta = 100
+        self.h_movement_level = 0
+        self.v_movement_level = 0
 
     def draw(self, screen, colorpreset: 'aspirin_display.ColorPreset'):
         pygame.gfxdraw.aacircle(screen, self.x, self.y, self.size, colorpreset.fgColor.toRGBA())
 
     def tick(self):
-        pass
+        self.x += self.h_movement_level * self.speed
+        self.y += self.v_movement_level * self.speed
 
     def addScore(self, times: int=1):
         self.score += self.score_delta * times
