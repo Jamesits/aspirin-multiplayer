@@ -66,6 +66,9 @@ class Window:
         for o in self.status.objects:
             if isinstance(o, aspirin_logic.GameObject):
                 o.tick()
+        for o in self.status.objects:
+            if isinstance(o, aspirin_logic.GameObject):
+                o.collisionDetect(self)
 
     def redraw(self):
         self.windowSurface.fill(self.status.getColorPreset().bgColor.toRGBA())

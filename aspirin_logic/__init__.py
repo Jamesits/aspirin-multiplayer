@@ -20,6 +20,9 @@ class GameObject:
     def tick(self):
         pass
 
+    def collisionDetect(self, status: 'GameStatus'):
+        pass
+
 
 class CircularGameObject(GameObject):
     def __init__(self, x: int = 0, y: int = 0, size: int = 0, colorpreset: 'util.ColorPreset' = util.ColorPreset()):
@@ -53,7 +56,7 @@ class LinearGameObject(GameObject):
         return self.top, self.left
 
     def get_end2(self):
-        if self.orientation == LinearGameObject.Orientation.HORIZONTAL:
+        if self.orientation == LinearGameObject.Orientation.VERTICAL:
             return self.top, self.left + self.length * self.direction
         else:
             return self.top + self.length * self.direction, self.left
@@ -65,6 +68,18 @@ class LinearGameObject(GameObject):
         x1, y1 = self.get_end1()
         x2, y2 = self.get_end2()
         pygame.gfxdraw.line(screen, x1, y1, x2, y2, self.getDrawingColor())
+
+    def collisionDetect(self, status: 'GameStatus'):
+        x1, y1 = self.get_end1()
+        x2, y2 = self.get_end2()
+        if self.orientation == LinearGameObject.Orientation.HORIZONTAL:
+            if x1 <= 0 or x2 >= status.width:
+                self.direction *= -1
+        elif self.orientation == LinearGameObject.Orientation.VERTICAL:
+            if y1 <= 0 or y2 >= status.height:
+                self.direction *= -1
+        else:
+            raise AttributeError()
 
 
 class GameStatus:
@@ -141,7 +156,7 @@ class Obstacle(LinearGameObject):
         self.speed = 20
 
     def tick(self):
-        if self.orientation == LinearGameObject.Orientation.HORIZONTAL:
+        if self.orientation == LinearGameObject.Orientation.VERTICAL:
             self.left += self.speed * self.direction
         else:
             self.top += self.speed * self.direction
