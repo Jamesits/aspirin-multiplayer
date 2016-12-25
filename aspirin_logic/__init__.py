@@ -1,4 +1,6 @@
 import os
+import random
+import math
 
 import pygame
 import pygame.gfxdraw
@@ -57,9 +59,9 @@ class LinearGameObject(GameObject):
 
     def get_end2(self):
         if self.orientation == LinearGameObject.Orientation.VERTICAL:
-            return self.top, self.left + self.length * self.direction
+            return self.top, self.left + self.length
         else:
-            return self.top + self.length * self.direction, self.left
+            return self.top + self.length, self.left
 
     def getDrawingColor(self):
         return self.colorpreset.fgColor.toRGBA()
@@ -83,6 +85,11 @@ class LinearGameObject(GameObject):
 
 
 class GameStatus:
+    class Status:
+        READY = 0
+        ONAIR = 1
+        DIED = 2
+
     def __init__(self, width: int = 384, height: int = 216, color_preset="default"):
         self.color_presets = {
             "default": util.ColorPreset()
@@ -94,6 +101,26 @@ class GameStatus:
         self.line_length = 20
         self.color_preset = color_preset
         self.objects = []
+        self.game_status = GameStatus.Status.READY
+        self.game_speed = 0
+
+    def start(self):
+        self.game_status = GameStatus.Status.ONAIR
+
+    def die(self):
+        self.game_status = GameStatus.Status.DIED
+
+    def nextLevel(self):
+        self.addObject(Obstacle(random.randint(0, self.width), random.randint(0, self.height), 20, LinearGameObject.Orientation.HORIZONTAL))
+        self.addObject(Obstacle(random.randint(0, self.width), random.randint(0, self.height), 20, LinearGameObject.Orientation.VERTICAL))
+
+    def nextSpeed(self):
+        self.game_speed += 1
+        for o in self.objects:
+            if isinstance(o, Player):
+                o.speed = math.floor(self.game_speed + 2)
+            elif isinstance(o, Obstacle):
+                o.speed = math.floor(1.5 * self.game_speed + 2)
 
     def load_color_presets(self):
         for filename in os.listdir("color_presets"):
@@ -115,7 +142,6 @@ class GameStatus:
     def addInitialObjects(self):
         self.addObject(Player("Player1", self.width // 2, self.height // 2))
         self.addObject(Target(self.width // 2, self.height // 4))
-        self.addObject(Obstacle(self.width // 4, self.height // 4, 20))
 
     def clearObject(self):
         self.objects.clear()
@@ -125,7 +151,9 @@ class GameStatus:
 
     def resetGame(self):
         self.clearObject()
-        self.addInitialObjects()
+        # self.addInitialObjects()
+        self.game_status = GameStatus.Status.READY
+        self.game_speed = 0
 
 
 class Player(CircularGameObject):
@@ -148,18 +176,39 @@ class Player(CircularGameObject):
     def addScore(self, times: int = 1):
         self.score += self.score_delta * times
 
+    def collisionDetect(self, status: 'GameStatus'):
+        for o in status.objects:
+            if isinstance(o, Obstacle):
+                x1, y1 = o.get_end1()
+                x2, y2 = o.get_end2()
+                if o.orientation == LinearGameObject.Orientation.VERTICAL:
+                    if y1 < self.y < y2 and self.x - self.size < x1 < self.x + self.size:
+                        status.die()
+                elif o.orientation == LinearGameObject.Orientation.HORIZONTAL:
+                    if x1 < self.x < x2 and self.y - self.size < y1 < self.y + self.size:
+                        status.die()
+            elif isinstance(o, Target):
+                if self.x - self.size < o.x + o.size and self.x + self.size > o.x - o.size and self.y - self.size < o.y + o.size and self.y + self.size > o.y - o.size:
+                    self.addScore()
+                    status.nextLevel()
+                    if self.score // self.score_delta % 10 == 0:
+                        status.nextSpeed()
+                    o.randomPosition(status)
+
 
 class Obstacle(LinearGameObject):
-    def __init__(self, top: int = 0, left: int = 0, length: int = 0, dire: int = LinearGameObject.Direction.RIGHT_OR_DOWN,
-                 ori: int = LinearGameObject.Orientation.HORIZONTAL, colorpreset: 'util.ColorPreset' = util.ColorPreset()):
+    def __init__(self, top: int = 0, left: int = 0, length: int = 0, ori: int = LinearGameObject.Orientation.HORIZONTAL, dire: int = LinearGameObject.Direction.RIGHT_OR_DOWN, colorpreset: 'util.ColorPreset' = util.ColorPreset()):
         super().__init__(top, left, length, dire, ori, colorpreset)
-        self.speed = 20
+        self.speed = 2
 
     def tick(self):
         if self.orientation == LinearGameObject.Orientation.VERTICAL:
             self.left += self.speed * self.direction
         else:
             self.top += self.speed * self.direction
+
+    def getDrawingColor(self):
+        return self.colorpreset.lineColor.toRGBA()
 
 
 class Target(CircularGameObject):
@@ -168,3 +217,7 @@ class Target(CircularGameObject):
 
     def getDrawingColor(self):
         return self.colorpreset.fgColor2.toRGBA()
+
+    def randomPosition(self, status: 'GameStatus'):
+        self.x = random.randint(0, status.width)
+        self.y = random.randint(0, status.height)

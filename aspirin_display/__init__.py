@@ -9,7 +9,7 @@ import aspirin_logic
 
 
 class Window:
-    def __init__(self, width: int, height: int, status: aspirin_logic.GameStatus, fps: int = 30, tickQuotient: int = 2):
+    def __init__(self, width: int, height: int, status: aspirin_logic.GameStatus, fps: int = 20, tickQuotient: int = 1):
         # initialize window configs
         self.width = width
         self.height = height
@@ -68,35 +68,61 @@ class Window:
                 o.tick()
         for o in self.status.objects:
             if isinstance(o, aspirin_logic.GameObject):
-                o.collisionDetect(self)
+                o.collisionDetect(self.status)
 
     def redraw(self):
         self.windowSurface.fill(self.status.getColorPreset().bgColor.toRGBA())
 
-        # event handling loop
-        for event in pygame.event.get():
+        if self.status.game_status == aspirin_logic.GameStatus.Status.READY:
+            self.instructionSurf = self.font.render('Aspirin Multiplayer: Press Enter to start game.', True,
+                                                    self.status.getColorPreset().fgColor.toRGBA())
+            self.windowSurface.blit(self.instructionSurf, self.instructionRect)
 
-            # handle ending the program
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                pygame.quit()
-                sys.exit()
+            for event in pygame.event.get():
 
-            if event.type in [KEYDOWN, KEYUP]:
-                if event.key in self.eventHandlers:
-                    self.eventHandlers[event.key][event.type](event)
+                # handle ending the program
+                if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                    pygame.quit()
+                    sys.exit()
 
-        # count tick
-        if self.tickCount == 0:
-            self.tick()
-        self.tickCount = (self.tickCount + 1) % self.tickQuotient
+                if event.type == KEYDOWN:
+                    if event.key == K_RETURN:
+                        self.status.start()
 
-        # draw everything
-        self.draw_status_bar()
-        for o in self.status.objects:
-            if isinstance(o, aspirin_logic.GameObject):
-                o.draw(self.windowSurface)
+        elif self.status.game_status == aspirin_logic.GameStatus.Status.ONAIR:
+            # event handling loop
+            for event in pygame.event.get():
 
-        self.windowSurface.blit(self.instructionSurf, self.instructionRect)
+                # handle ending the program
+                if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                    pygame.quit()
+                    sys.exit()
+
+                if event.type in [KEYDOWN, KEYUP]:
+                    if event.key in self.eventHandlers:
+                        self.eventHandlers[event.key][event.type](event)
+
+            # count tick
+            if self.tickCount == 0:
+                self.tick()
+            self.tickCount = (self.tickCount + 1) % self.tickQuotient
+
+            # draw everything
+            self.draw_status_bar()
+            for o in self.status.objects:
+                if isinstance(o, aspirin_logic.GameObject) and o.visibility:
+                    o.draw(self.windowSurface)
+        else:
+            self.instructionSurf = self.font.render('Died, press ESC to quit.', True,
+                                                    self.status.getColorPreset().fgColor.toRGBA())
+            self.windowSurface.blit(self.instructionSurf, self.instructionRect)
+
+            for event in pygame.event.get():
+
+                # handle ending the program
+                if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                    pygame.quit()
+                    sys.exit()
 
         pygame.display.update()
         self.mainClock.tick(self.fps)
