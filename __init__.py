@@ -1,9 +1,8 @@
+import pygame
+
 import aspirin_display
 import aspirin_input
 import aspirin_logic
-import pygame
-import os
-
 
 if __name__ == "__main__":
     # initialize PyGame
