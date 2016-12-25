@@ -11,6 +11,8 @@ if __name__ == "__main__":
 
     gameStatus = aspirin_logic.GameStatus()
     gameWindow = aspirin_display.Window(384, 216, gameStatus)
+    gameWindow.register_input_group(aspirin_input.KeyboardInputGroupASDF())
+    gameWindow.register_input_group(aspirin_input.KeyboardInputGroupUDLR())
     gameStatus.addInitialObjects()
     while True:
         gameWindow.redraw()

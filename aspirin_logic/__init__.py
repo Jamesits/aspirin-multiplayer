@@ -14,9 +14,6 @@ class GameObject:
     def tick(self):
         raise NotImplementedError()
 
-    # @staticmethod
-    # def draw_stroke(window, color, ):
-
 
 class GameStatus:
     def __init__(self, width: int=384, height: int=216, color_preset="default"):

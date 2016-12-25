@@ -1,4 +1,5 @@
 import aspirin_logic
+import aspirin_input
 import pygame
 from pygame.locals import *
 import pyganim
@@ -54,6 +55,8 @@ class Window:
         self.instructionRect = self.instructionSurf.get_rect()
         self.instructionRect.bottomleft = (10, self.height - 10)
 
+        self.eventHandlers = {}
+
         # set window property
         self.mainClock = pygame.time.Clock()
         pygame.display.set_caption('Aspirin')
@@ -68,6 +71,14 @@ class Window:
         statusBarRect = statusBarSurf.get_rect()
         self.windowSurface.blit(statusBarSurf, statusBarRect)
 
+    def register_input_group(self, inputgroup: 'aspirin_input.InputGroup'):
+        if isinstance(inputgroup, aspirin_input.KeyboardInputGroup):
+            keys, handlers = inputgroup.registerKeys()
+            for key in keys:
+                self.eventHandlers[key] = handlers
+        else:
+            raise NotImplementedError()
+
     def redraw(self):
         self.windowSurface.fill(self.status.getColorPreset().bgColor.toRGBA())
 
@@ -75,13 +86,13 @@ class Window:
         for event in pygame.event.get():
 
             # handle ending the program
-            if event.type == QUIT:
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
-            elif event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+
+            if event.type in [KEYDOWN, KEYUP]:
+                if event.key in self.eventHandlers:
+                    self.eventHandlers[event.key][event.type](event)
 
         self.draw_status_bar()
         for o in self.status.objects:
