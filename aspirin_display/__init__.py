@@ -46,7 +46,7 @@ class Window:
         status_text = "Score "
         for o in self.status.objects:
             if isinstance(o, aspirin_logic.Player):
-                status_text += "{}: {}".format(o.name, o.score)
+                status_text += "{}: {} ".format(o.name, o.score)
         statusBarSurf = self.font.render(status_text, True, self.status.getColorPreset().fgColor.toRGBA())
         statusBarRect = statusBarSurf.get_rect()
         self.windowSurface.blit(statusBarSurf, statusBarRect)
@@ -64,7 +64,7 @@ class Window:
             if isinstance(o, aspirin_logic.GameObject):
                 o.tick()
         for o in self.status.objects:
-            if isinstance(o, aspirin_logic.GameObject):
+            if isinstance(o, aspirin_logic.GameObject) and o.visibility:
                 o.collisionDetect(self.status)
 
     def redraw(self):

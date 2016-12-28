@@ -68,25 +68,25 @@ class KeyboardInputGroupUDLR(KeyboardInputGroup):
         }
 
     def onKeydown(self, event):
-        if event.key == K_a:
+        if event.key == K_LEFT:
             self.connectedPlayer.h_movement_level -= 1
-        elif event.key == K_d:
+        elif event.key == K_RIGHT:
             self.connectedPlayer.h_movement_level += 1
-        elif event.key == K_s:
+        elif event.key == K_DOWN:
             self.connectedPlayer.v_movement_level += 1
-        elif event.key == K_w:
+        elif event.key == K_UP:
             self.connectedPlayer.v_movement_level -= 1
         else:
             raise NotImplementedError()
 
     def onKeyUp(self, event):
-        if event.key == K_a:
+        if event.key == K_LEFT:
             self.connectedPlayer.h_movement_level += 1
-        elif event.key == K_d:
+        elif event.key == K_RIGHT:
             self.connectedPlayer.h_movement_level -= 1
-        elif event.key == K_s:
+        elif event.key == K_DOWN:
             self.connectedPlayer.v_movement_level -= 1
-        elif event.key == K_w:
+        elif event.key == K_UP:
             self.connectedPlayer.v_movement_level += 1
         else:
             raise NotImplementedError()

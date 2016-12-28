@@ -103,6 +103,7 @@ class GameStatus:
         self.objects = []
         self.game_status = GameStatus.Status.READY
         self.game_speed = 0
+        self.player_count = 0
 
     def start(self):
         self.game_status = GameStatus.Status.ONAIR
@@ -137,6 +138,8 @@ class GameStatus:
         return self.color_presets[self.color_preset]
 
     def addObject(self, obj: GameObject):
+        if isinstance(obj, Player):
+            self.player_count += 1
         self.objects.append(obj)
 
     def addInitialObjects(self):
@@ -148,6 +151,11 @@ class GameStatus:
 
     def getPlayers(self):
         return [x for x in self.objects if isinstance(x, Player)]
+
+    def playerKilled(self, player):
+        self.player_count -= 1
+        if self.player_count == 0:
+            self.die()
 
     def resetGame(self):
         self.clearObject()
@@ -165,6 +173,7 @@ class Player(CircularGameObject):
         self.score_delta = 100
         self.h_movement_level = 0
         self.v_movement_level = 0
+        self.died = False
 
     def getDrawingColor(self):
         return self.colorpreset.fgColor.toRGBA()
@@ -176,6 +185,11 @@ class Player(CircularGameObject):
     def addScore(self, times: int = 1):
         self.score += self.score_delta * times
 
+    def die(self, status: 'GameStatus'):
+        self.died = True
+        self.visibility = False
+        status.playerKilled(self)
+
     def collisionDetect(self, status: 'GameStatus'):
         for o in status.objects:
             if isinstance(o, Obstacle):
@@ -183,10 +197,10 @@ class Player(CircularGameObject):
                 x2, y2 = o.get_end2()
                 if o.orientation == LinearGameObject.Orientation.VERTICAL:
                     if y1 < self.y < y2 and self.x - self.size < x1 < self.x + self.size:
-                        status.die()
+                        self.die(status)
                 elif o.orientation == LinearGameObject.Orientation.HORIZONTAL:
                     if x1 < self.x < x2 and self.y - self.size < y1 < self.y + self.size:
-                        status.die()
+                        self.die(status)
             elif isinstance(o, Target):
                 if self.x - self.size < o.x + o.size and self.x + self.size > o.x - o.size and self.y - self.size < o.y + o.size and self.y + self.size > o.y - o.size:
                     self.addScore()
