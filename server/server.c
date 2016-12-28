@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     while (1){
         pthread_create(&p1, NULL, t1, NULL);
         pthread_create(&p2, NULL, t2, NULL);
-
+        printf("new\n");
         pthread_join(p1, NULL);
         pthread_join(p2, NULL);
     }
