@@ -44,8 +44,10 @@ int main(int argc, char *argv[])
         }
 	}
 
-   NSLCloseSocket(sListen);
-   free(conn);
+   NSLCloseSocket(sListen1);
+   NSLCloseSocket(sListen2);
+   free(conn1);
+   free(conn2);
    NSLEnd();
    return 0;
 }
