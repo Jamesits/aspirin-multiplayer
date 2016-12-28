@@ -6,7 +6,7 @@ import pygame
 import pygame.gfxdraw
 
 import util
-
+import aspirin_input
 
 class GameObject:
     def __init__(self, colorpreset: 'util.ColorPreset' = util.ColorPreset()):
@@ -90,7 +90,7 @@ class GameStatus:
         ONAIR = 1
         DIED = 2
 
-    def __init__(self, width: int = 384, height: int = 216, color_preset="default"):
+    def __init__(self, width: int = 384, height: int = 216, color_preset: str="default", nc: 'aspirin_input.NetworkComm'=None):
         self.color_presets = {
             "default": util.ColorPreset()
         }
@@ -104,6 +104,7 @@ class GameStatus:
         self.game_status = GameStatus.Status.READY
         self.game_speed = 0
         self.player_count = 0
+        self.nc = nc
 
     def start(self):
         self.game_status = GameStatus.Status.ONAIR

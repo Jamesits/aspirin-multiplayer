@@ -1,10 +1,16 @@
 import sys
+import json
 
 import pygame
 from pygame.locals import *
 
 import aspirin_input
 import aspirin_logic
+
+
+class NetworkEvent:
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
 
 
 class Window:
@@ -67,6 +73,11 @@ class Window:
             if isinstance(o, aspirin_logic.GameObject) and o.visibility:
                 o.collisionDetect(self.status)
 
+    def process_event(self, event, isProxiedEvent: bool=False):
+        if event.type in [KEYDOWN, KEYUP]:
+            if event.key in self.eventHandlers:
+                self.eventHandlers[event.key][event.type](event, isProxiedEvent)
+
     def redraw(self):
         self.windowSurface.fill(self.status.getColorPreset().bgColor.toRGBA())
 
@@ -95,11 +106,17 @@ class Window:
                     pygame.quit()
                     sys.exit()
 
-                if event.type in [KEYDOWN, KEYUP]:
-                    if event.key in self.eventHandlers:
-                        self.eventHandlers[event.key][event.type](event)
+                self.process_event(event)
+                if self.status.nc:
+                    recv_event, _ = self.status.nc.recv()
+                    while recv_event:
+                        s = recv_event.decode()
+                        print("Recv: ", s)
+                        e = NetworkEvent(**json.loads(s))
+                        self.process_event(e, isProxiedEvent=True)
+                        recv_event, _ = self.status.nc.recv()
 
-            # count tick
+            # count tickw
             if self.tickCount == 0:
                 self.tick()
             self.tickCount = (self.tickCount + 1) % self.tickQuotient
