@@ -79,6 +79,7 @@ class Window:
                 self.eventHandlers[event.key][event.type](event, isProxiedEvent)
 
     def redraw(self):
+        pygame.event.pump()
         self.windowSurface.fill(self.status.getColorPreset().bgColor.toRGBA())
 
         if self.status.game_status == aspirin_logic.GameStatus.Status.READY:

@@ -5,18 +5,20 @@ import json
 import socket
 import fcntl, os
 import errno
+import random
 
 class NetworkComm:
     def __init__(self, address: str="127.0.0.1", port: int=45645):
         self.address = address
-        self.port = port
+        self.serverport = port
+        self.port = random.randint(20000, 30000)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         # self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind(("0.0.0.0", self.port))
         fcntl.fcntl(self.sock, fcntl.F_SETFL, os.O_NONBLOCK)
 
     def send(self, data: bytes):
-        self.sock.sendto(data, (self.address, self.port))
+        self.sock.sendto(data, (self.address, self.serverport))
 
     def recv(self, bufsize: int=1024):
         try:
