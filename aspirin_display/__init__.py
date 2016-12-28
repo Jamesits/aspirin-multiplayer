@@ -1,7 +1,6 @@
 import sys
 
 import pygame
-import pyganim
 from pygame.locals import *
 
 import aspirin_input
@@ -24,10 +23,8 @@ class Window:
         self.status_bar_height = 22
 
         # init drawing things
-        self.font = pygame.font.Font("/Users/james/Library/Fonts/DejaVuSans.ttf", 16)
+        self.font = pygame.font.Font("freesansbold.ttf", 16)
         self.animTypes = []
-        self.animObjs = {}
-        self.moveConductor = pyganim.PygConductor(self.animObjs)
         self.windowSurface = pygame.display.set_mode((self.width, self.height), 0, 32)
         self.instructionSurf = self.font.render('Aspirin Multiplayer', True,
                                                 self.status.getColorPreset().fgColor.toRGBA())
