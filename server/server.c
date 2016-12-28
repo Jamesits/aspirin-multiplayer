@@ -22,6 +22,7 @@ void *t1(void *a) {
     int recvBytes = recvfrom(sListen1, message, sizeof(message), 0, (struct sockaddr*)&clientAddr, &address_len);
     if(recvBytes <= 0) return 0;
     printf("Received from 1: %s\n", message);
+    sendto(sListen1, message, recvBytes, 0, (struct sockaddr*)&clientAddr, address_len);
     sendto(sListen2, message, recvBytes, 0, (struct sockaddr*)&clientAddr, address_len);
     return 0;
 }
@@ -36,6 +37,7 @@ void *t2(void *a) {
     if(recvBytes <= 0) return 0;
     printf("Received from 2: %s\n", message);
     sendto(sListen1, message, recvBytes, 0, (struct sockaddr*)&clientAddr, address_len);
+    sendto(sListen2, message, recvBytes, 0, (struct sockaddr*)&clientAddr, address_len);
     return 0;
 }
 

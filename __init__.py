@@ -18,7 +18,7 @@ if __name__ == "__main__":
     gameWindow = aspirin_display.Window(384, 216, gameStatus)
     gameStatus.addInitialObjects()
     gameStatus.addObject(aspirin_logic.Player("Player2", x=gameStatus.width//4, y=gameStatus.height//4))
-    gameWindow.register_input_group(aspirin_input.KeyboardInputGroupWASD(gameStatus.getPlayers()[0], nc))
-    gameWindow.register_input_group(aspirin_input.KeyboardInputGroupUDLR(gameStatus.getPlayers()[1], nc))
+    gameWindow.register_input_group(aspirin_input.KeyboardInputGroupUDLR(gameStatus.getPlayers()[0], nc))
+    gameWindow.register_input_group(aspirin_input.KeyboardInputGroup_fromnet(gameStatus.getPlayers()[1], nc))
     while True:
         gameWindow.redraw()

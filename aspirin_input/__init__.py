@@ -117,6 +117,43 @@ class KeyboardInputGroupWASD(NetworkProxiedKeyboardInputGroup):
         else:
             raise NotImplementedError()
 
+class KeyboardInputGroup_fromnet(NetworkProxiedKeyboardInputGroup):
+    def __init__(self, player: 'aspirin_logic.Player', nc: NetworkComm):
+        super().__init__(player, nc)
+        self.keys = [K_a, K_s, K_d, K_w]
+        self.eventHandlers = {
+            KEYDOWN: self.onKeydown,
+            KEYUP: self.onKeyUp,
+        }
+
+    def onKeydown(self, event, isProxiedEvent: bool=False):
+        if not isProxiedEvent:
+            return
+        if event.key == K_a:
+            self.connectedPlayer.h_movement_level -= 1
+        elif event.key == K_d:
+            self.connectedPlayer.h_movement_level += 1
+        elif event.key == K_s:
+            self.connectedPlayer.v_movement_level += 1
+        elif event.key == K_w:
+            self.connectedPlayer.v_movement_level -= 1
+        else:
+            raise NotImplementedError()
+
+    def onKeyUp(self, event, isProxiedEvent: bool=False):
+        if not isProxiedEvent:
+            return
+        if event.key == K_a:
+            self.connectedPlayer.h_movement_level += 1
+        elif event.key == K_d:
+            self.connectedPlayer.h_movement_level -= 1
+        elif event.key == K_s:
+            self.connectedPlayer.v_movement_level -= 1
+        elif event.key == K_w:
+            self.connectedPlayer.v_movement_level += 1
+        else:
+            raise NotImplementedError()
+
 
 class KeyboardInputGroupUDLR(NetworkProxiedKeyboardInputGroup):
     def __init__(self, player: 'aspirin_logic.Player', nc: NetworkComm):
