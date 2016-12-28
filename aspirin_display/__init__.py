@@ -116,7 +116,7 @@ class Window:
                         self.process_event(e, isProxiedEvent=True)
                         recv_event, _ = self.status.nc.recv()
 
-            # count tickw
+            # count tick
             if self.tickCount == 0:
                 self.tick()
             self.tickCount = (self.tickCount + 1) % self.tickQuotient

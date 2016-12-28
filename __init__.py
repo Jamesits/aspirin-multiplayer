@@ -1,4 +1,5 @@
 import pygame
+import sys
 
 import aspirin_display
 import aspirin_input
@@ -9,7 +10,9 @@ if __name__ == "__main__":
     pygame.init()
 
     # initialize network
-    nc = aspirin_input.NetworkComm()
+    addr = sys.argv[1]
+    port = int(sys.argv[2])
+    nc = aspirin_input.NetworkComm(addr, port)
     gameStatus = aspirin_logic.GameStatus(nc=nc)
     gameStatus.color_preset = "white"
     gameWindow = aspirin_display.Window(384, 216, gameStatus)
