@@ -114,12 +114,6 @@ class Window:
                         s = recv_event.decode()
                         print("Recv: ", s)
                         e = NetworkEvent(**json.loads(s))
-                        e.key = {
-                            K_UP: K_w,
-                            K_DOWN: K_s,
-                            K_LEFT: K_a,
-                            K_RIGHT: K_d,
-                        }[e.key]
                         self.process_event(e, isProxiedEvent=True)
                         recv_event, _ = self.status.nc.recv()
 
