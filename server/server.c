@@ -12,8 +12,8 @@ SOCKET sListen1;
 SOCKADDR *conn1;
 SOCKET sListen2;
 SOCKADDR *conn2;
-SOCKADDR broadcastAddr1;
-SOCKADDR broadcastAddr2;
+SOCKADDR_IN broadcastAddr1;
+SOCKADDR_IN broadcastAddr2;
 
 void *t1(void *a) {
     while (1) {
